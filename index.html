@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSI Radar — Binance Spot</title>
+<style>
+:root{color-scheme:dark;--bg:#080d18;--panel:#101827;--panel2:#131f31;--line:#223148;--text:#e8f0fb;--muted:#8fa2bb;--cyan:#38d6d0;--blue:#5c8dff;--red:#ff647c;--green:#36d6a0;--amber:#f3bd61}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% -10%,#142743 0,transparent 38%),var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1500px;margin:auto;padding:26px 22px 50px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--cyan),#3677f6);display:grid;place-items:center;color:#07111e;font-weight:900;font-size:20px;box-shadow:0 8px 30px #38d6d033}.brand h1{font-size:20px;letter-spacing:.3px;margin:0}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:1.4px;text-transform:uppercase}.status{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px currentColor}.dot.live{background:var(--green)}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin:10px 0 20px}.hero h2{font-size:26px;line-height:1.2;margin:0 0 7px}.hero p{margin:0;color:var(--muted);max-width:700px}.market-switch{display:flex;background:#0b1321;border:1px solid var(--line);padding:4px;border-radius:12px;gap:4px}.market-switch button{border:0;border-radius:9px;padding:10px 22px;background:transparent;color:var(--muted);font-weight:750;cursor:pointer}.market-switch button.active{background:linear-gradient(135deg,#1e5460,#214b82);color:#eaffff;box-shadow:inset 0 0 0 1px #48d5d044}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.stat,.panel{background:linear-gradient(145deg,#121d2e,#0e1726);border:1px solid var(--line);border-radius:16px}.stat{padding:15px 17px;transition:border-color .15s,background .15s}.stat.clickable{cursor:pointer;user-select:none}.stat.clickable:hover{border-color:#438b9a}.stat.clickable.active{border-color:var(--cyan);background:linear-gradient(145deg,#163044,#102334);box-shadow:inset 0 0 0 1px #38d6d033}.stat.clickable:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}.stat label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px}.stat strong{display:block;font-size:22px;margin-top:4px;letter-spacing:.2px}.stat span{color:var(--muted);font-size:11px}
+.panel{padding:16px;margin-bottom:15px}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.field{display:flex;align-items:center;gap:8px;background:#0a1321;border:1px solid var(--line);border-radius:10px;padding:0 11px;min-height:40px}.field label{color:var(--muted);font-size:12px;white-space:nowrap}.field input,.field select{background:transparent;color:var(--text);border:0;outline:0;padding:9px 0;min-width:100px;font:inherit}.field input{width:170px}.field select option{background:#101827}.btn{border:1px solid #2b4963;background:#14263a;color:#dffcff;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;min-height:40px}.btn:hover{border-color:var(--cyan)}.btn.primary{background:linear-gradient(135deg,#17616a,#245a9b);border-color:#328e9b}.btn:disabled{opacity:.5;cursor:wait}.control-note{color:var(--muted);font-size:11px}.field select{min-width:72px}.sort-hint{font-size:9px;opacity:.7;margin-left:4px}
+.timeframes{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}.tf{border:1px solid var(--line);background:#0b1422;color:var(--muted);padding:7px 11px;border-radius:8px;font-size:12px;cursor:pointer}.tf.active{color:var(--cyan);border-color:#267b83;background:#102b35}
+.table-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.table-head h3{margin:0;font-size:15px}.table-head small{color:var(--muted)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;min-width:950px}th{background:#0b1422;color:#8fa2bb;font-size:10px;letter-spacing:.9px;text-transform:uppercase;font-weight:700;text-align:right;padding:13px 12px;white-space:nowrap;position:sticky;top:0}th[data-rsi-sort],th[data-market-sort]{cursor:pointer;transition:color .15s,background .15s}th[data-rsi-sort]:hover,th[data-market-sort]:hover{color:var(--cyan);background:#102236}th[data-rsi-sort].sorted,th[data-market-sort].sorted{color:var(--cyan)}th:first-child,td:first-child{text-align:left}td{text-align:right;padding:12px;border-top:1px solid #1b2a3d;font-variant-numeric:tabular-nums}tbody tr:hover{background:#15243a}td:first-child{font-weight:750}.pair{display:flex;align-items:center;gap:9px}.coin-icon{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#1b3049;color:var(--cyan);font-size:10px;font-weight:800}.pair small{display:block;color:var(--muted);font-weight:500;font-size:10px}.rsi{display:inline-flex;min-width:49px;justify-content:center;padding:4px 7px;border-radius:7px;font-weight:800}.low{color:#ff8193;background:#4a202d}.mid{color:#c5d4e7;background:#1c2b40}.high{color:#5be0b0;background:#123c36}.price-up{color:var(--green)}.price-down{color:var(--red)}.empty{text-align:center!important;padding:38px;color:var(--muted)}.foot{color:#71849e;font-size:11px;line-height:1.7;margin:12px 3px}.progress{height:4px;background:#1a2a3e;border-radius:10px;overflow:hidden;margin-top:10px}.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue));transition:width .2s}.notice{padding:11px 13px;border-radius:10px;background:#17263a;border:1px solid #2b4562;color:#b8c9dc;font-size:12px;margin-bottom:14px}.error{color:#ff9aa8}.hidden{display:none}.view-tabs{display:flex;gap:8px;margin:0 0 15px}.view-tab{border:1px solid var(--line);background:#0b1422;color:var(--muted);padding:10px 17px;border-radius:10px;font-weight:750;cursor:pointer}.view-tab.active{color:var(--cyan);border-color:#267b83;background:#102b35}.signal-up{color:var(--green);font-weight:750}.signal-wait{color:var(--amber);font-weight:750}.signal-muted{color:var(--muted)}
+
+.signal-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.signal-tab{border:1px solid var(--line);background:#0b1422;color:var(--muted);padding:10px 15px;border-radius:10px;font-weight:750;cursor:pointer}.signal-tab.active{color:var(--cyan);border-color:#267b83;background:#102b35}.signal-tab span{display:inline-grid;place-items:center;min-width:22px;height:21px;padding:0 5px;margin-left:7px;border-radius:7px;background:#1b3049;color:var(--text);font-size:11px}.signal-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.signal-toolbar .field{min-height:36px}.signal-toolbar .field select{padding:7px 0}.signal-price{font-variant-numeric:tabular-nums;font-weight:750}.signal-pair{color:#dffcff;text-decoration:none;font-weight:800}.signal-pair:hover{color:var(--cyan);text-decoration:underline}.signal-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.signal-pane{display:none}.signal-pane.active{display:block}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}.metric{padding:14px 16px;border:1px solid var(--line);border-radius:13px;background:#101b2b}.metric label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.metric strong{display:block;font-size:22px;margin-top:4px}.positive{color:var(--green)}.negative{color:var(--red)}.neutral{color:var(--amber)}.history-tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.tiny{font-size:11px;color:var(--muted)}.pill{display:inline-block;padding:3px 7px;border-radius:6px;background:#1b3049;color:#c7d8ec;font-size:11px}.signal-live{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;box-shadow:0 0 8px var(--green)}
+@media(max-width:850px){.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.signal-tab{flex:1;padding:9px 8px}}
+
+@media(max-width:850px){.hero{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.top{align-items:flex-start;flex-direction:column}.status{align-self:flex-start}}
+@media(max-width:480px){.wrap{padding:18px 12px 35px}.hero h2{font-size:22px}.stat strong{font-size:19px}.field{flex:1}.field input{width:100%;min-width:60px}.toolbar .btn{flex:1}.market-switch{width:100%}.market-switch button{flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+<header class="top">
+  <div class="brand"><div class="logo">R</div><div><h1>RSI RADAR</h1><small>Binance Spot · Market Scanner</small></div></div>
+  <div class="status"><i class="dot" id="statusDot"></i><span id="statusText">Bağlantı bekleniyor</span><span>·</span><span id="clock">--:--:--</span></div>
+</header>
+<section class="hero">
+  <div><h2>Piyasayı tek ekranda tara.</h2><p>Seçtiğin kotasyon piyasasındaki pariteleri RSI 14 ile farklı zaman dilimlerinde takip et.</p></div>
+  <div class="market-switch" role="group" aria-label="Piyasa seçimi"><button class="active" data-market="USDT">USDT PİYASASI</button><button data-market="BTC">BTC PİYASASI</button></div>
+</section>
+<section class="stats">
+  <div class="stat"><label>Uygun parite</label><strong id="sPairs">—</strong><span>Seçili piyasadaki toplam</span></div>
+  <div class="stat"><label>RSI hesaplanan</label><strong id="sDone">0</strong><span>En az bir zaman dilimi hazır</span></div>
+  <div class="stat clickable" id="lowCard" role="button" tabindex="0" aria-pressed="false" title="RSI 30 ve altındaki pariteleri filtrele"><label>RSI ≤ 30</label><strong id="sLow">0</strong><span>Düşük RSI bölgesi · filtrelemek için tıkla</span></div>
+  <div class="stat clickable" id="highCard" role="button" tabindex="0" aria-pressed="false" title="RSI 70 ve üzerindeki pariteleri filtrele"><label>RSI ≥ 70</label><strong id="sHigh">0</strong><span>Yüksek RSI bölgesi · filtrelemek için tıkla</span></div>
+</section>
+<nav class="view-tabs" aria-label="Görünümler"><button class="view-tab active" data-view="radar">RSI Radar</button><button class="view-tab" data-view="signals">Sinyal Merkezi</button></nav>
+<div id="radarView">
+<div class="notice" id="scopeNotice">Tarama kapsamını 50–300 parite veya tüm uygun Spot pariteleri olarak seçebilirsin. Parite sayısı ve yenileme sıklığı arttıkça Binance istek yükü de artar.</div>
+<section class="panel">
+  <div class="toolbar">
+    <div class="field"><label for="search">Ara</label><input id="search" type="search" placeholder="Örn. ETH, XRP..."></div>
+    <div class="field"><label for="filter">RSI filtresi</label><select id="filter"><option value="all">Tüm değerler</option><option value="low">RSI ≤ 30</option><option value="mid">30 &lt; RSI &lt; 70</option><option value="high">RSI ≥ 70</option></select></div>
+    <div class="field"><label for="pairLimit">Parite</label><select id="pairLimit"><option value="50">İlk 50</option><option value="100" selected>İlk 100</option><option value="200">İlk 200</option><option value="300">İlk 300</option><option value="all">Tümü</option></select></div>
+    <div class="field"><label for="sort">Sıralama</label><select id="sort"><option value="volume">24s hacim (yüksek)</option><option value="rsiAsc">RSI (düşükten yükseğe)</option><option value="rsiDesc">RSI (yüksekten düşüğe)</option><option value="change">24s değişim</option><option value="symbol">Parite adı</option></select></div>
+    <div class="field"><label for="autoRefresh">Otomatik</label><select id="autoRefresh"><option value="on" selected>Açık</option><option value="off">Kapalı</option></select></div>
+    <div class="field"><label for="refreshInterval">Aralık</label><select id="refreshInterval"><option value="60000" selected>1 dk</option><option value="180000">3 dk</option><option value="300000">5 dk</option><option value="600000">10 dk</option></select></div>
+    <button class="btn primary" id="refreshBtn">↻ Şimdi güncelle</button>
+  </div>
+  <div class="timeframes" id="tfButtons" aria-label="Zaman dilimleri">
+    <button class="tf active" data-tf="1h">1 Saat</button><button class="tf" data-tf="5m">5 Dakika</button><button class="tf" data-tf="15m">15 Dakika</button><button class="tf" data-tf="30m">30 Dakika</button><button class="tf" data-tf="4h">4 Saat</button><button class="tf" data-tf="12h">12 Saat</button><button class="tf" data-tf="1d">Günlük</button><button class="tf" data-tf="1w">Haftalık</button>
+  </div>
+  <div class="progress"><i id="progressBar"></i></div><div class="control-note" style="margin-top:8px">Son güncelleme: <span id="lastUpdate">Henüz yok</span> · Sonraki tarama: <span id="countdown">—</span></div>
+</section>
+<section class="panel">
+  <div class="table-head"><h3 id="tableTitle">USDT pariteleri</h3><small id="tableMeta">Veriler yükleniyor…</small></div>
+  <div class="table-wrap"><table><thead><tr><th>Parite</th><th>Son fiyat</th><th data-market-sort="change" aria-sort="none">24s değişim ↕</th><th data-market-sort="volume" aria-sort="none">24s hacim ↕</th><th data-rsi-sort="5m">RSI 5m</th><th data-rsi-sort="15m">RSI 15m</th><th data-rsi-sort="30m">RSI 30m</th><th data-rsi-sort="1h">RSI 1h</th><th data-rsi-sort="4h">RSI 4h</th><th data-rsi-sort="12h">RSI 12h</th><th data-rsi-sort="1d">RSI 1d</th><th data-rsi-sort="1w">RSI 1w</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="12">Binance verileri alınıyor…</td></tr></tbody></table></div>
+  <div class="foot">RSI hesaplaması: 14 periyot, Wilder yöntemi. Açık mumun RSI değeri mum kapanana kadar değişebilir. Kırmızı ≤30, yeşil ≥70 bölgelerini gösterir; bunlar tek başına alım veya satım talimatı değildir.</div>
+</section>
+</div>
+<section id="signalsView" class="hidden">
+  <div class="notice"><span class="signal-live"></span>Canlı fiyat akışı · Sinyal koşulları kapanmış mumlardan hesaplanır. Canlı fiyat, sinyalin oluştuğu fiyatın yerine geçmez. Performans geçmiş verilerle ölçülür; gelecek sonuçları garanti etmez.</div>
+  <nav class="signal-tabs" aria-label="Sinyal kategorileri">
+    <button class="signal-tab active" data-signal-tab="live">Sinyal listesi <span id="liveCount">0</span></button>
+    <button class="signal-tab" data-signal-tab="history">Sinyal geçmişi <span id="historyCount">0</span></button>
+    <button class="signal-tab" data-signal-tab="performance">Performans analizi</button>
+  </nav>
+  <div id="signalLivePane" class="signal-pane active">
+    <div class="signal-toolbar">
+      <div class="field"><label for="signalTypeFilter">Kategori</label><select id="signalTypeFilter"><option value="all">Tüm sinyaller</option><option value="early">Yaklaşan</option><option value="formed">Gerçekleşen</option><option value="confirmed">Doğrulanmış</option></select></div>
+      <div class="field"><label for="signalTfFilter">Zaman dilimi</label><select id="signalTfFilter"><option value="all">Tümü</option><option>15m</option><option>1h</option><option>4h</option></select></div>
+      <div class="field"><label for="signalSearch">Parite</label><input id="signalSearch" type="search" placeholder="BTC, ETH…"></div>
+      <span class="tiny" id="signalUpdated">Canlı fiyat bekleniyor…</span>
+    </div>
+    <div class="table-wrap"><table style="min-width:1050px"><thead><tr><th>Parite / Binance</th><th>Canlı fiyat</th><th>24s değişim</th><th>Zaman</th><th>Tür</th><th>Skor</th><th>Koşullar</th><th>Sinyal fiyatı</th></tr></thead><tbody id="signalRows"><tr><td class="empty" colspan="8">Sinyal verileri hazırlanıyor…</td></tr></tbody></table></div>
+    <div class="foot">Yaklaşan sinyaller öncü koşullardır; gerçekleşen sinyaller kapanmış mumda kesişim oluştuğunu, doğrulanmış sinyaller ise tanımlı 5 koşuldan en az 3'ünün sağlandığını gösterir. Bunlar başarı olasılığı değildir.</div>
+  </div>
+  <div id="signalHistoryPane" class="signal-pane">
+    <div class="metric-grid">
+      <div class="metric"><label>Kaydedilen sinyal</label><strong id="histTotal">0</strong></div><div class="metric"><label>Değerlendirilen sonuç</label><strong id="histEvaluated">0</strong></div><div class="metric"><label>Yönsel isabet</label><strong id="histHitRate">—</strong></div><div class="metric"><label>Ortalama değişim</label><strong id="histAvgReturn">—</strong></div>
+    </div>
+    <div class="history-tools"><div class="field"><label for="historyHorizon">Değerlendirme</label><select id="historyHorizon"><option value="1h">1 saat</option><option value="4h">4 saat</option><option value="12h">12 saat</option><option value="24h">24 saat</option></select></div><div class="field"><label for="historyKind">Sinyal</label><select id="historyKind"><option value="all">Tümü</option><option value="formed">Gerçekleşen</option><option value="confirmed">Doğrulanmış</option></select></div></div>
+    <div class="table-wrap"><table style="min-width:1050px"><thead><tr><th>Parite</th><th>Sinyal zamanı</th><th>Tür</th><th>Zaman</th><th>Sinyal fiyatı</th><th>1s değişim</th><th>4s değişim</th><th>12s değişim</th><th>24s değişim</th><th>Durum</th></tr></thead><tbody id="historyRows"><tr><td class="empty" colspan="10">Henüz geçmiş sinyal kaydı yok.</td></tr></tbody></table></div>
+    <div class="foot">Sinyal geçmişi yalnızca bu sayfa açık kaldığı sürece tutulur. Sayfa kapatılır veya yenilenirse geçmiş sıfırlanır. Her sinyalin 1, 4, 12 ve 24 saatlik sonucu, süre dolduğunda Binance verisiyle hesaplanır. Uygulama açılmadan önceki sinyaller geçmişe eklenmez.</div>
+  </div>
+  <div id="signalPerformancePane" class="signal-pane">
+    <div class="metric-grid"><div class="metric"><label>Toplam sinyal</label><strong id="perfTotal">0</strong></div><div class="metric"><label>1s yönsel isabet</label><strong id="perf1h">—</strong></div><div class="metric"><label>4s yönsel isabet</label><strong id="perf4h">—</strong></div><div class="metric"><label>24s yönsel isabet</label><strong id="perf24h">—</strong></div></div>
+    <div class="table-wrap"><table style="min-width:800px"><thead><tr><th>Sinyal türü</th><th>Zaman dilimi</th><th>Kayıt</th><th>1s isabet</th><th>4s isabet</th><th>12s isabet</th><th>24s isabet</th><th>Ort. 24s değişim</th></tr></thead><tbody id="performanceRows"><tr><td class="empty" colspan="8">Performans için henüz yeterli kayıt yok.</td></tr></tbody></table></div>
+    <div class="notice" style="margin-top:14px">İsabet oranı, sinyal yönü ile seçilen süre sonundaki fiyat yönünün aynı olma oranıdır. Yatay sonuçlar isabet sayılmaz. Komisyon, kayma ve işlem maliyeti dahil değildir. Az sayıdaki kayıt istatistiksel olarak güvenilir sonuç vermez.</div>
+  </div>
+  <div class="foot">Veri kaynağı: Binance Spot public market data. Bu sayfa yalnızca bilgilendirme ve teknik gösterge takibi içindir; yatırım tavsiyesi değildir.</div>
+</section>
+<div class="foot">Veri kaynağı: Binance Spot public market data. Bu sayfa yalnızca bilgilendirme ve teknik gösterge takibi içindir; yatırım tavsiyesi değildir. API erişimi veya ağ bağlantısı kesilirse son alınan değerler ekranda kalabilir.</div>
+</div>
+<script>
+(() => {
+"use strict";
+const API="https://api.binance.com";
+const TFS=["5m","15m","30m","1h","4h","12h","1d","1w"];
+const CONCURRENCY=6;
+const $=id=>document.getElementById(id);
+let market="USDT", selectedTf="1h", symbols=[], rowsData=[], busy=false, lastUpdate=null, timer=null, countdownTimer=null, nextRunAt=0, cachedExchangeInfo=null;
+let rsiHeaderSortTf=null, rsiHeaderSortDirection="desc", marketHeaderSortKey=null, marketHeaderSortDirection="desc";
+let livePrices=new Map(), priceSocket=null, priceSocketRetry=null, signalRecords=[], signalRefreshBusy=false;
+const SIGNAL_HORIZONS=["1h","4h","12h","24h"];
+function startPriceStream(){if(priceSocket&&[WebSocket.OPEN,WebSocket.CONNECTING].includes(priceSocket.readyState))return;try{priceSocket=new WebSocket("wss://stream.binance.com:9443/ws/!miniTicker@arr");priceSocket.onmessage=e=>{try{const arr=JSON.parse(e.data),now=Date.now();for(const t of arr)livePrices.set(t.s,{price:Number(t.c),open:Number(t.o),change:Number(t.c)&&Number(t.o)?(Number(t.c)/Number(t.o)-1)*100:0,at:now});if(now-lastLiveRender>900){lastLiveRender=now;if(!$('signalsView').classList.contains('hidden'))renderSignalList()}}catch(_){}};priceSocket.onopen=()=>{$('signalUpdated').textContent='Canlı fiyat akışı bağlı'};priceSocket.onclose=()=>{$('signalUpdated').textContent='Canlı fiyat bağlantısı yeniden deneniyor';clearTimeout(priceSocketRetry);priceSocketRetry=setTimeout(startPriceStream,5000)};priceSocket.onerror=()=>{try{priceSocket.close()}catch(_){}}}catch(_){$('signalUpdated').textContent='Canlı fiyat bağlantısı kullanılamıyor'}}
+let lastLiveRender=0;
+function binanceUrl(symbol){const base=symbol.endsWith("USDT")?symbol.slice(0,-4):symbol.endsWith("BTC")?symbol.slice(0,-3):symbol;const quote=symbol.slice(base.length);return `https://www.binance.com/tr/trade/${encodeURIComponent(base)}_${encodeURIComponent(quote)}`}
+function fmtPrice(v){if(!Number.isFinite(v))return '—';const d=v>=1000?2:v>=1?4:v>=0.01?6:8;return v.toLocaleString('en-US',{maximumFractionDigits:d})}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function recordSignalEvents(){const now=Date.now();for(const row of rowsData){for(const tf of ["15m","1h","4h"]){const a=row.signals?.[tf];if(!a)continue;const types=[];if(a.stUp||a.macdUp)types.push("formed");if(a.score>=3)types.push("confirmed");for(const type of types){const id=`${row.symbol}|${tf}|${type}|${a.closeTime}`;if(signalRecords.some(x=>x.id===id))continue;const rec={id,symbol:row.symbol,tf,type,createdAt:a.closeTime||now,signalPrice:a.lastPrice,direction:"up",score:a.score,conditions:[a.stUp&&"Stoch RSI",a.macdUp&&"MACD",a.trend&&"EMA trendi",a.volUp&&"Hacim",a.rsiRecover&&"RSI toparlanması"].filter(Boolean),results:{}};signalRecords.push(rec)}}}renderHistory();renderPerformance()}
+async function evaluateSignalHistory(){if(signalRefreshBusy)return;signalRefreshBusy=true;try{let changed=false;for(const rec of signalRecords){for(const horizon of SIGNAL_HORIZONS){if(rec.results[horizon])continue;const ms=({"1h":3600000,"4h":14400000,"12h":43200000,"24h":86400000})[horizon],target=rec.createdAt+ms;if(Date.now()<target+60000)continue;try{const start=Math.floor(target/60000)*60000;const k=await getJSON(`/api/v3/klines?symbol=${rec.symbol}&interval=1m&startTime=${start}&limit=1`);if(!k.length||Number(k[0][6])>Date.now())continue;const price=Number(k[0][4]),change=(price/rec.signalPrice-1)*100;rec.results[horizon]={price,change,at:Number(k[0][6]),hit:change>0};changed=true}catch(_){/* sonraki yenilemede tekrar dene */}}}if(changed){renderHistory();renderPerformance()}}finally{signalRefreshBusy=false}}
+
+const fmt=(n,d=4)=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:d}):"—";
+const fmtVol=n=>{if(!Number.isFinite(n))return "—";if(n>=1e9)return (n/1e9).toFixed(2)+"B";if(n>=1e6)return (n/1e6).toFixed(2)+"M";if(n>=1e3)return (n/1e3).toFixed(1)+"K";return n.toFixed(0)};
+function setStatus(text,live=false){$("statusText").textContent=text;$("statusDot").classList.toggle("live",live)}
+async function getJSON(path){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);try{const r=await fetch(API+path,{signal:controller.signal,cache:"no-store"});if(!r.ok)throw new Error("Binance HTTP "+r.status);return await r.json()}catch(e){if(e.name==="AbortError")throw new Error("Binance yanıt vermedi (15 sn zaman aşımı)");throw e}finally{clearTimeout(timeout)}}
+function rsiSeries(klines,period=14){
+ const closes=klines.map(k=>Number(k[4]));if(closes.length<period+1)return [];
+ const out=Array(closes.length).fill(null);let gain=0,loss=0;
+ for(let i=1;i<=period;i++){const d=closes[i]-closes[i-1];gain+=Math.max(d,0);loss+=Math.max(-d,0)}
+ let ag=gain/period,al=loss/period;out[period]=al===0?(ag===0?50:100):100-100/(1+ag/al);
+ for(let i=period+1;i<closes.length;i++){const d=closes[i]-closes[i-1];ag=(ag*(period-1)+Math.max(d,0))/period;al=(al*(period-1)+Math.max(-d,0))/period;out[i]=al===0?(ag===0?50:100):100-100/(1+ag/al)}
+ return out;
+}
+function calcRSI(klines,period=14){const a=rsiSeries(klines,period);return a.length?a[a.length-1]:null}
+function ema(values,period){let out=[],k=2/(period+1),prev=null;for(const v of values){prev=prev===null?v:v*k+prev*(1-k);out.push(prev)}return out}
+function calcStochRSISeries(klines){
+ const rsis=rsiSeries(klines,14),raw=Array(rsis.length).fill(null);
+ for(let i=0;i<rsis.length;i++){if(i<27||rsis.slice(i-13,i+1).some(v=>v===null))continue;const w=rsis.slice(i-13,i+1),lo=Math.min(...w),hi=Math.max(...w);raw[i]=hi===lo?50:(rsis[i]-lo)/(hi-lo)*100}
+ const k=Array(raw.length).fill(null),d=Array(raw.length).fill(null);
+ for(let i=0;i<raw.length;i++){if(i>=2&&raw.slice(i-2,i+1).every(v=>v!==null))k[i]=raw.slice(i-2,i+1).reduce((a,b)=>a+b,0)/3;if(i>=2&&k.slice(i-2,i+1).every(v=>v!==null))d[i]=k.slice(i-2,i+1).reduce((a,b)=>a+b,0)/3}
+ return {k,d};
+}
+function signalAnalysis(k){
+ // Son eleman açık mum olabilir; sinyal sınıflandırması yalnızca kapanmış mumlarda yapılır.
+ const closed=k.slice(0,-1);if(closed.length<70)return null;
+ const closes=closed.map(x=>Number(x[4])),vol=closed.map(x=>Number(x[5])),rsiS=rsiSeries(closed,14),rsi=rsiS.at(-1);
+ const stS=calcStochRSISeries(closed),i=closes.length-1,st={k:stS.k[i],d:stS.d[i],pk:stS.k[i-1],pd:stS.d[i-1]};
+ const e12=ema(closes,12),e26=ema(closes,26),macdLine=e12.map((v,j)=>v-e26[j]),sig=ema(macdLine,9),e20=ema(closes,20),e50=ema(closes,50);
+ const macdUp=macdLine[i]>sig[i]&&macdLine[i-1]<=sig[i-1],macdGap=Math.abs(macdLine[i]-sig[i]);
+ const macdNear=!macdUp&&macdLine[i]<=sig[i]&&macdGap<Math.abs(closes[i])*0.0015;
+ const stUp=st.k!==null&&st.d!==null&&st.pk!==null&&st.pd!==null&&st.k>st.d&&st.pk<=st.pd;
+ const stNear=st.k!==null&&st.d!==null&&st.k<=st.d&&st.d-st.k<8&&st.k<35;
+ const rsiRecover=rsi!==null&&rsi>30&&rsi<48,trend=closes[i]>e20[i]&&e20[i]>e50[i];
+ const volWindow=vol.slice(-21,-1),avgVol=volWindow.length?volWindow.reduce((a,b)=>a+b,0)/volWindow.length:0,volUp=avgVol>0&&vol[i]>avgVol*1.2;
+ const conditions=[stUp,macdUp,trend,volUp,rsiRecover];
+ return {rsi,st,stUp,stNear,macdUp,macdNear,trend,volUp,rsiRecover,score:conditions.filter(Boolean).length,closeTime:Number(closed[i][6]),lastPrice:closes[i]};
+}
+function collectSignalItems(){const out=[];for(const row of rowsData){for(const tf of ["15m","1h","4h"]){const a=row.signals?.[tf];if(!a)continue;const add=(type,label,why)=>out.push({symbol:row.symbol,tf,a,type,label,why});if(a.stNear||a.macdNear||a.rsiRecover)add("early","Yaklaşan",[a.stNear?"Stoch RSI kesişime yakın":null,a.macdNear?"MACD kesişime yakın":null,a.rsiRecover?"RSI toparlanma bölgesinde":null].filter(Boolean).join(" · "));if(a.stUp||a.macdUp)add("formed","Gerçekleşen",[a.stUp?"Stoch RSI yukarı kesti":null,a.macdUp?"MACD pozitif kesti":null].filter(Boolean).join(" · "));if(a.score>=3)add("confirmed","Doğrulanmış",`${a.score}/5: ${[a.stUp&&"Stoch RSI",a.macdUp&&"MACD",a.trend&&"EMA trendi",a.volUp&&"Hacim",a.rsiRecover&&"RSI"].filter(Boolean).join(", ")}`)}}return out.sort((x,y)=>y.a.score-x.a.score)}
+function renderSignalList(){const type=$('signalTypeFilter').value,tf=$('signalTfFilter').value,q=$('signalSearch').value.trim().toUpperCase();const all=collectSignalItems();$('liveCount').textContent=all.length;const list=all.filter(x=>(type==='all'||x.type===type)&&(tf==='all'||x.tf===tf)&&x.symbol.includes(q));$('signalRows').innerHTML=list.length?list.map(x=>{const live=livePrices.get(x.symbol),cls=live?.change>=0?'price-up':'price-down';return `<tr><td><a class="signal-pair" href="${binanceUrl(x.symbol)}" target="_blank" rel="noopener">${esc(x.symbol)} ↗</a></td><td class="signal-price">${live?fmtPrice(live.price):'—'}</td><td class="${live?cls:'signal-muted'}">${live?(live.change>=0?'+':'')+live.change.toFixed(2)+'%':'—'}</td><td>${x.tf}</td><td>${x.label}</td><td>${x.a.score}/5</td><td>${esc(x.why)}</td><td>${fmtPrice(x.a.lastPrice)}</td></tr>`}).join():`<tr><td colspan="8" class="empty">Bu filtrelerde sinyal bulunamadı.</td></tr>`;$('signalUpdated').textContent=priceSocket?.readyState===WebSocket.OPEN?'Canlı fiyat akışı bağlı': 'Fiyat akışı bekleniyor…'}
+function renderHistory(){if(!$('historyRows'))return;$('historyCount').textContent=signalRecords.length;$('histTotal').textContent=signalRecords.length;const horizon=$('historyHorizon').value,kind=$('historyKind').value;const list=signalRecords.filter(r=>kind==='all'||r.type===kind).sort((a,b)=>b.createdAt-a.createdAt);$('historyRows').innerHTML=list.length?list.map(r=>`<tr><td><a class="signal-pair" href="${binanceUrl(r.symbol)}" target="_blank" rel="noopener">${esc(r.symbol)} ↗</a></td><td>${new Date(r.createdAt).toLocaleString('tr-TR')}</td><td>${r.type==='confirmed'?'Doğrulanmış':'Gerçekleşen'}</td><td>${r.tf}</td><td>${fmtPrice(r.signalPrice)}</td>${SIGNAL_HORIZONS.map(h=>`<td class="${r.results[h]?(r.results[h].change>0?'positive':r.results[h].change<0?'negative':'neutral'):''}">${r.results[h]?(r.results[h].change>0?'+':'')+r.results[h].change.toFixed(2)+'%':'Bekleniyor'}</td>`).join('')}<td>${r.results[horizon]?(r.results[horizon].hit?'Yön aynı':'Yön farklı'):'Süre dolmadı'}</td></tr>`).join():`<tr><td colspan="10" class="empty">Henüz kaydedilmiş sinyal yok. Gerçekleşen/doğrulanmış sinyaller yeni oluştukça burada birikir.</td></tr>`;const evaluated=signalRecords.filter(r=>r.results[horizon]),hits=evaluated.filter(r=>r.results[horizon].hit).length,avg=evaluated.length?evaluated.reduce((s,r)=>s+r.results[horizon].change,0)/evaluated.length:null;$('histEvaluated').textContent=evaluated.length;$('histHitRate').textContent=evaluated.length?(hits/evaluated.length*100).toFixed(1)+'%':'—';$('histAvgReturn').textContent=avg===null?'—':(avg>0?'+':'')+avg.toFixed(2)+'%'}
+function renderPerformance(){const total=signalRecords.length;$('perfTotal').textContent=total;for(const h of SIGNAL_HORIZONS){const done=signalRecords.filter(r=>r.results[h]),hit=done.filter(r=>r.results[h].hit).length;const id=h==='1h'?'perf1h':h==='4h'?'perf4h':h==='24h'?'perf24h':null;if(id)$(id).textContent=done.length?(hit/done.length*100).toFixed(1)+'%':'—'}const groups=new Map();for(const r of signalRecords){const key=r.type+'|'+r.tf;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)}const rows=[...groups.entries()].map(([key,arr])=>{const [type,tf]=key,rate=h=>{const a=arr.filter(r=>r.results[h]);return a.length?`${(a.filter(r=>r.results[h].hit).length/a.length*100).toFixed(1)}% (${a.length})`:'—'},r24=arr.filter(r=>r.results['24h']);const avg=r24.length?r24.reduce((s,r)=>s+r.results['24h'].change,0)/r24.length:null;return `<tr><td>${type==='confirmed'?'Doğrulanmış':'Gerçekleşen'}</td><td>${tf}</td><td>${arr.length}</td><td>${rate('1h')}</td><td>${rate('4h')}</td><td>${rate('12h')}</td><td>${rate('24h')}</td><td>${avg===null?'—':(avg>0?'+':'')+avg.toFixed(2)+'%'}</td></tr>`});$('performanceRows').innerHTML=rows.length?rows.join():`<tr><td colspan="8" class="empty">Performans analizi için henüz kayıt yok. Sinyaller oluştukça ve değerlendirme süreleri doldukça tablo dolar.</td></tr>`}
+function setSignalPane(name){document.querySelectorAll('[data-signal-tab]').forEach(b=>b.classList.toggle('active',b.dataset.signalTab===name));['live','history','performance'].forEach(n=>$('signal'+(n==='live'?'Live':n==='history'?'History':'Performance')+'Pane').classList.toggle('active',n===name));if(name==='live')renderSignalList();if(name==='history')renderHistory();if(name==='performance')renderPerformance()}
+function rsiClass(v){return v===null?"":v<=30?"low":v>=70?"high":"mid"}
+function rsiHTML(v){return v===null?'<span class="rsi mid">—</span>':`<span class="rsi ${rsiClass(v)}">${v.toFixed(1)}</span>`}
+async function loadMarket(){
+ if(busy)return;busy=true;$("refreshBtn").disabled=true;setStatus("Pariteler alınıyor…");
+ try{
+  const [info,tickers]=await Promise.all([cachedExchangeInfo?Promise.resolve(cachedExchangeInfo):getJSON("/api/v3/exchangeInfo"),getJSON("/api/v3/ticker/24hr")]);cachedExchangeInfo=info;
+  const tickMap=new Map(tickers.map(t=>[t.symbol,t]));
+  const valid=info.symbols.filter(s=>s.status==="TRADING"&&s.quoteAsset===market&&s.isSpotTradingAllowed!==false&&tickMap.has(s.symbol));
+  valid.sort((a,b)=>Number(tickMap.get(b.symbol).quoteVolume)-Number(tickMap.get(a.symbol).quoteVolume));
+  const limit=$("pairLimit").value;const selected=limit==="all"?valid:valid.slice(0,Number(limit));symbols=selected.map(s=>({symbol:s.symbol,base:s.baseAsset,quote:s.quoteAsset,t:tickMap.get(s.symbol)}));
+  $("sPairs").textContent=valid.length.toLocaleString("tr-TR");$("tableTitle").textContent=market+" pariteleri";$("tableMeta").textContent=`Hacme göre ilk ${symbols.length} parite · RSI verileri hazırlanıyor`;
+  rowsData=symbols.map(s=>({ ...s, rsi:{}, signals:{}, loading:true }));
+  render();await loadAllRSI();lastUpdate=new Date();$("lastUpdate").textContent=lastUpdate.toLocaleTimeString("tr-TR");setStatus("Canlı veri bağlantısı",true);$("tableMeta").textContent=`${symbols.length} parite · Son güncelleme ${lastUpdate.toLocaleTimeString("tr-TR")}`;
+ }catch(e){setStatus("Bağlantı hatası");$("tableMeta").innerHTML='<span class="error">'+e.message+'</span>';$("rows").innerHTML='<tr><td colspan="12" class="empty error">Binance verileri alınamadı. Biraz sonra tekrar deneyebilirsin. Bazı bölgelerde Binance erişimi kısıtlı olabilir.</td></tr>'}
+ finally{busy=false;$("refreshBtn").disabled=false;$("progressBar").style.width="0%"}
+}
+async function loadAllRSI(){
+ const jobs=[];for(const row of rowsData)for(const tf of TFS)jobs.push({row,tf});
+ let next=0,done=0;
+ async function worker(){while(next<jobs.length){const job=jobs[next++];try{const k=await getJSON(`/api/v3/klines?symbol=${job.row.symbol}&interval=${job.tf}&limit=100`);job.row.rsi[job.tf]=calcRSI(k);if(["15m","1h","4h"].includes(job.tf)){job.row.signals=job.row.signals||{};job.row.signals[job.tf]=signalAnalysis(k)}}catch(e){job.row.rsi[job.tf]=null}done++;$("progressBar").style.width=(done/jobs.length*100).toFixed(1)+"%";if(done%12===0||done===jobs.length){$("tableMeta").textContent=`RSI hesaplanıyor · ${done}/${jobs.length}`;render()}}}
+ await Promise.all(Array.from({length:CONCURRENCY},worker));rowsData.forEach(r=>r.loading=false);render();updateStats();renderSignalList();recordSignalEvents().then(evaluateSignalHistory);
+}
+function updateStats(){const vals=rowsData.map(r=>r.rsi[selectedTf]).filter(v=>v!==null&&v!==undefined);$("sDone").textContent=rowsData.filter(r=>Object.keys(r.rsi).length>0).length;$("sLow").textContent=vals.filter(v=>v<=30).length;$("sHigh").textContent=vals.filter(v=>v>=70).length}
+function updateHeaderSortUI(){
+ document.querySelectorAll("[data-rsi-sort]").forEach(th=>{
+  const tf=th.dataset.rsiSort,active=rsiHeaderSortTf===tf;
+  th.classList.toggle("sorted",active);
+  th.textContent="RSI "+tf+(active?(rsiHeaderSortDirection==="desc"?" ↓":" ↑"):" ↕");
+  th.setAttribute("aria-sort",active?(rsiHeaderSortDirection==="desc"?"descending":"ascending"):"none");
+ });
+}
+function updateMarketSortUI(){document.querySelectorAll("[data-market-sort]").forEach(th=>{const key=th.dataset.marketSort,active=marketHeaderSortKey===key,label=key==="change"?"24s değişim":"24s hacim";th.classList.toggle("sorted",active);th.textContent=label+(active?(marketHeaderSortDirection==="desc"?" ↓":" ↑"):" ↕");th.setAttribute("aria-sort",active?(marketHeaderSortDirection==="desc"?"descending":"ascending"):"none")})}
+function updateCountCardUI(){
+ const f=$("filter").value;
+ [["lowCard","low"],["highCard","high"]].forEach(([id,value])=>{
+  const active=f===value,card=$(id);
+  card.classList.toggle("active",active);
+  card.setAttribute("aria-pressed",String(active));
+ });
+}
+function toggleCountFilter(value){
+ $("filter").value=$("filter").value===value?"all":value;
+ updateCountCardUI();render();
+}
+function render(){
+ const q=$("search").value.trim().toUpperCase(),f=$("filter").value,s=$("sort").value;
+ let list=rowsData.filter(r=>(r.symbol.includes(q)||r.base.includes(q))&&(f==="all"||(f==="low"&&r.rsi[selectedTf]!=null&&r.rsi[selectedTf]<=30)||(f==="mid"&&r.rsi[selectedTf]!=null&&r.rsi[selectedTf]>30&&r.rsi[selectedTf]<70)||(f==="high"&&r.rsi[selectedTf]!=null&&r.rsi[selectedTf]>=70)));
+ if(rsiHeaderSortTf){
+  const tf=rsiHeaderSortTf, direction=rsiHeaderSortDirection==="desc"?-1:1;
+  list.sort((a,b)=>{const av=a.rsi[tf],bv=b.rsi[tf];if(av==null&&bv==null)return 0;if(av==null)return 1;if(bv==null)return -1;return (av-bv)*direction;});
+ }else if(marketHeaderSortKey){
+  const key=marketHeaderSortKey,dir=marketHeaderSortDirection==="desc"?-1:1;
+  list.sort((a,b)=>(Number(a.t[key==="change"?"priceChangePercent":"quoteVolume"])-Number(b.t[key==="change"?"priceChangePercent":"quoteVolume"]))*dir);
+ }else{
+  list.sort((a,b)=>s==="rsiAsc"?(a.rsi[selectedTf]??101)-(b.rsi[selectedTf]??101):s==="rsiDesc"?(b.rsi[selectedTf]??-1)-(a.rsi[selectedTf]??-1):s==="change"?Number(b.t.priceChangePercent)-Number(a.t.priceChangePercent):s==="symbol"?a.symbol.localeCompare(b.symbol):Number(b.t.quoteVolume)-Number(a.t.quoteVolume));
+ }
+ updateHeaderSortUI();updateMarketSortUI();
+ if(!list.length){$("rows").innerHTML='<tr><td colspan="12" class="empty">Bu filtreye uygun parite bulunamadı.</td></tr>';return}
+ $("rows").innerHTML=list.map(r=>`<tr><td><div class="pair"><span class="coin-icon">${r.base.slice(0,3)}</span><span>${r.base}<small>${r.symbol}</small></span></div></td><td>${fmt(Number(r.t.lastPrice),8)}</td><td class="${Number(r.t.priceChangePercent)>=0?'price-up':'price-down'}">${Number(r.t.priceChangePercent)>=0?'+':''}${fmt(Number(r.t.priceChangePercent),2)}%</td><td>${fmtVol(Number(r.t.quoteVolume))} ${market}</td>${TFS.map(tf=>`<td>${rsiHTML(r.rsi[tf]??null)}</td>`).join("")}</tr>`).join("");
+ updateStats();
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===b));$("radarView").classList.toggle("hidden",b.dataset.view!=="radar");$("signalsView").classList.toggle("hidden",b.dataset.view!=="signals");if(b.dataset.view==="signals"){startPriceStream();renderSignalList();evaluateSignalHistory()}}));
+document.querySelectorAll('[data-signal-tab]').forEach(b=>b.addEventListener('click',()=>setSignalPane(b.dataset.signalTab)));
+$('signalTypeFilter').addEventListener('change',renderSignalList);$('signalTfFilter').addEventListener('change',renderSignalList);$('signalSearch').addEventListener('input',renderSignalList);$('historyHorizon').addEventListener('change',renderHistory);$('historyKind').addEventListener('change',renderHistory);
+
+$("search").addEventListener("input",render);
+$("filter").addEventListener("change",()=>{updateCountCardUI();render()});
+$("sort").addEventListener("change",()=>{rsiHeaderSortTf=null;marketHeaderSortKey=null;updateHeaderSortUI();updateMarketSortUI();render()});
+[["lowCard","low"],["highCard","high"]].forEach(([id,value])=>{
+ const card=$(id);card.addEventListener("click",()=>toggleCountFilter(value));
+ card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleCountFilter(value)}});
+});
+document.querySelectorAll("[data-rsi-sort]").forEach(th=>th.addEventListener("click",()=>{
+ marketHeaderSortKey=null;const tf=th.dataset.rsiSort;
+ if(rsiHeaderSortTf!==tf){rsiHeaderSortTf=tf;rsiHeaderSortDirection="desc";}
+ else if(rsiHeaderSortDirection==="desc"){rsiHeaderSortDirection="asc";}
+ else{rsiHeaderSortTf=null;}
+ render();
+}));
+document.querySelectorAll("[data-market-sort]").forEach(th=>th.addEventListener("click",()=>{const key=th.dataset.marketSort;rsiHeaderSortTf=null;if(marketHeaderSortKey!==key){marketHeaderSortKey=key;marketHeaderSortDirection="desc";}else if(marketHeaderSortDirection==="desc"){marketHeaderSortDirection="asc";}else{marketHeaderSortKey=null;}render();}));
+$("refreshBtn").addEventListener("click",()=>{clearTimeout(timer);if(!busy)loadMarket().finally(schedule)});
+$("pairLimit").addEventListener("change",()=>{if(!busy){clearTimeout(timer);loadMarket().finally(schedule)}});
+$("refreshInterval").addEventListener("change",()=>{if(!busy){clearTimeout(timer);schedule()}});
+$("autoRefresh").addEventListener("change",()=>{clearTimeout(timer);if($("autoRefresh").value==="on")schedule();else{$("countdown").textContent="Kapalı"}});
+document.querySelectorAll("[data-market]").forEach(b=>b.addEventListener("click",()=>{if(market===b.dataset.market||busy)return;market=b.dataset.market;rsiHeaderSortTf=null;marketHeaderSortKey=null;updateHeaderSortUI();updateMarketSortUI();document.querySelectorAll("[data-market]").forEach(x=>x.classList.toggle("active",x===b));loadMarket().finally(schedule)}));
+document.querySelectorAll("[data-tf]").forEach(b=>b.addEventListener("click",()=>{selectedTf=b.dataset.tf;document.querySelectorAll("[data-tf]").forEach(x=>x.classList.toggle("active",x===b));updateStats();render()}));
+function schedule(){
+ clearTimeout(timer);
+ if($("autoRefresh").value!=="on"){$("countdown").textContent="Kapalı";nextRunAt=0;return;}
+ const ms=Number($("refreshInterval").value)||60000;nextRunAt=Date.now()+ms;
+ timer=setTimeout(()=>{if(!busy)loadMarket().finally(schedule);else schedule()},ms);
+ updateCountdown();
+}
+function updateCountdown(){
+ if($("autoRefresh").value!=="on"){$("countdown").textContent="Kapalı";return;}
+ const sec=Math.max(0,Math.ceil((nextRunAt-Date.now())/1000));
+ $("countdown").textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")}`;
+}
+
+updateHeaderSortUI();updateMarketSortUI();updateCountCardUI();
+setInterval(()=>{$("clock").textContent=new Date().toLocaleTimeString("tr-TR");updateCountdown()},1000);setInterval(evaluateSignalHistory,60000);
+renderHistory();renderPerformance();loadMarket().finally(schedule);
+})();
+</script>
+</body>
+</html>
